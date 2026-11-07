@@ -1,125 +1,67 @@
-* { box-sizing: border-box; }
+# Spam Email Classifier Using Machine Learning
 
-:root {
-  --bg-dark: #3d2b1f;
-  --bg-mid: #6a4a3a;
-  --bg-soft: #d7b69d;
-  --card-bg: #fdf5ef;
-  --card-strong: #efe0d1;
-  --text-main: #2d1f1a;
-  --text-soft: #6a4d42;
-  --primary: #8f5a3c;
-  --primary-dark: #6e432e;
-  --border: #d6b7a0;
-  --shadow: rgba(61, 43, 31, 0.18);
-}
+A beginner-friendly Flask web application that classifies email text as **SPAM** or **NOT SPAM (HAM)** using TF-IDF features and a Multinomial Naive Bayes classifier.
 
-body {
-  margin: 0; min-height: 100vh; display: grid; place-items: center;
-  padding: 28px; background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-soft));
-  color: var(--text-main); font-family: Arial, Helvetica, sans-serif;
-  animation: fadeInPage 0.8s ease-out;
-}
+## Project files
 
-.container {
-  width: 100%; max-width: 720px; padding: 38px; background: rgba(253, 245, 239, 0.97);
-  border: 1px solid var(--border); border-radius: 18px;
-  box-shadow: 0 18px 55px var(--shadow);
-  animation: riseIn 0.8s ease-out;
-}
+- `app.py` — Flask web application and prediction logic
+- `train_model.py` — trains and saves the model
+- `data/spam.csv` — small included demonstration dataset
+- `templates/index.html` — web interface
+- `static/css/style.css` — page styling
+- `requirements.txt` — Python dependencies
+- `model/` — trained model is generated automatically
 
-.eyebrow { color: var(--primary-dark); font-size: 12px; font-weight: 700; letter-spacing: 2px; }
-h1 { margin: 12px 0 8px; font-size: clamp(28px, 5vw, 40px); }
-.subtitle { margin: 0 0 28px; color: var(--text-soft); line-height: 1.6; }
-.image-row {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px; margin: 0 0 24px;
-}
-.image-row img {
-  width: 100%; height: 120px; object-fit: cover; border-radius: 12px;
-  border: 2px solid rgba(143, 90, 60, 0.18); box-shadow: 0 8px 18px rgba(61, 43, 31, 0.08);
-  transition: transform 0.25s ease;
-}
-.image-row img:hover { transform: translateY(-2px) scale(1.01); }
-label { display: block; margin-bottom: 10px; font-weight: 700; }
-.sample-bar {
-  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
-}
-.sample-button {
-  margin: 0; padding: 9px 12px; border: 1px solid #d7b7a3; border-radius: 999px;
-  background: #f5e2d0; color: var(--primary-dark); font-size: 12px; font-weight: 700;
-  cursor: pointer; transition: transform 0.2s ease, background 0.2s ease;
-}
-.sample-button:hover {
-  background: #f0d6bf; transform: translateY(-1px);
-}
-textarea {
-  width: 100%; min-height: 190px; resize: vertical; padding: 15px;
-  border: 1px solid var(--border); border-radius: 10px; font: inherit; line-height: 1.5;
-  background: #fffdfb; color: var(--text-main);
-}
-textarea:focus { outline: 3px solid #efd7c3; border-color: var(--primary); }
-button[type="submit"] {
-  margin-top: 16px; padding: 13px 22px; border: 0; border-radius: 9px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-size: 15px; font-weight: 700; cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-button[type="submit"]:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(111, 67, 46, 0.25);
-}
-.result { margin-top: 24px; padding: 20px; border-radius: 12px; }
-.result h2 { margin: 6px 0; font-size: 26px; }
-.result p { margin: 0; }
-.result-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; }
-.keyword-panel, .history-panel {
-  margin-top: 24px; padding: 18px 20px; background: #f7efe8; border: 1px solid var(--border); border-radius: 12px;
-}
-.keyword-panel h3, .history-panel h3 { margin: 0 0 12px; font-size: 16px; }
-.keyword-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.keyword-chip {
-  display: inline-flex; padding: 6px 10px; border-radius: 999px; background: #f9d9a8;
-  color: #7b451d; font-size: 12px; font-weight: 700;
-}
-.spam { color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; }
-.ham { color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; }
-.error { margin-top: 18px; color: #b42318; }
-.history-header {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;
-}
-.clear-link { color: var(--primary-dark); text-decoration: none; font-size: 12px; font-weight: 700; }
-.history-list {
-  list-style: none; margin: 0; padding: 0; display: grid; gap: 12px;
-}
-.history-list li {
-  border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.5); padding: 12px;
-}
-.history-list p { margin: 8px 0; color: #334155; line-height: 1.5; }
-.history-list small { color: #64748b; }
-.history-label {
-  display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
-}
-.note { margin: 24px 0 0; color: #6f4d3c; font-size: 12px; line-height: 1.5; }
+## Run in Antigravity (or a local terminal)
 
-@keyframes fadeInPage {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+1. Upload/extract the complete `spam_email_classifier` folder.
+2. Open that folder as the project/workspace.
+3. Open the terminal in that folder.
+4. Create and activate a virtual environment (recommended):
 
-@keyframes riseIn {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+   **Windows**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
 
-@media (max-width: 520px) {
-  .container { padding: 24px; }
-  body { padding: 14px; }
-  .sample-bar { flex-direction: column; }
-}
+   **macOS / Linux**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
+5. Install dependencies:
+   ```bash
+   python -m pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+6. Start the application:
+   ```bash
+   python app.py
+   ```
+7. Open `http://127.0.0.1:5000` in your browser.
+
+The model is trained automatically the first time the app starts. To retrain it after changing the CSV:
+```bash
+python train_model.py
+```
+
+## Dataset format
+
+`data/spam.csv` must have exactly these required column names:
+- `label`: `spam` or `ham`
+- `message`: email/message text
+
+Add more labelled examples to improve model quality. The included dataset is a **small demonstration dataset**, not a production-grade or academically sufficient benchmark. For a final-year submission, use a larger, properly sourced and documented dataset, then evaluate on a held-out test set.
+
+## API / health check
+
+- `GET /health` returns a small JSON status response.
+- The main prediction interface is available at `/`.
+
+## Notes
+
+- No NLTK download is required.
+- No external API key or internet connection is required after dependencies are installed.
+- Model confidence is the classifier's maximum predicted class probability; it is not a guarantee that the prediction is correct.

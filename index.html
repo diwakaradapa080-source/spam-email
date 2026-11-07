@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spam Email Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <div class="eyebrow">MACHINE LEARNING PROJECT</div>
+    <h1>Spam Email Classifier</h1>
+    <p class="subtitle">Paste an email message below to check whether it looks like spam.</p>
+
+    <div class="image-row" aria-label="Related email security images">
+      <img src="https://images.unsplash.com/photo-1557200134-163fc7633405?auto=format&fit=crop&w=600&q=80" alt="Email inbox and security dashboard">
+      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" alt="Laptop with email content">
+      <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80" alt="Secure digital communication">
+    </div>
+
+    <form method="POST" action="/">
+      <label for="email_text">Email message</label>
+      <div class="sample-bar">
+        <button type="button" class="sample-button" data-sample="Urgent! Your account has been locked. Click here to verify your password immediately and claim your free reward before midnight.">Spam sample</button>
+        <button type="button" class="sample-button" data-sample="Hi team, thanks for the meeting notes. I will send the updated report after lunch and confirm the timeline for tomorrow.">Ham sample</button>
+      </div>
+      <textarea id="email_text" name="email_text" placeholder="Paste your email content here..." required>{{ email_text }}</textarea>
+      <button type="submit">Check Email</button>
+    </form>
+
+    {% if result %}
+      <section class="result {% if result == 'SPAM' %}spam{% else %}ham{% endif %}" aria-live="polite">
+        <span class="result-label">PREDICTION</span>
+        <h2>{{ result }}</h2>
+        <p>Model confidence: 100%</p>
+      </section>
+    {% endif %}
+
+    {% if suspicious_keywords %}
+      <section class="keyword-panel" aria-live="polite">
+        <h3>Suspicious terms detected</h3>
+        <div class="keyword-list">
+          {% for keyword in suspicious_keywords %}
+            <span class="keyword-chip">{{ keyword }}</span>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if error %}
+      <p class="error" role="alert">{{ error }}</p>
+    {% endif %}
+
+    {% if recent_checks %}
+      <section class="history-panel">
+        <div class="history-header">
+          <h3>Recent checks</h3>
+          <a href="{{ url_for('clear_history') }}" class="clear-link">Clear</a>
+        </div>
+        <ul class="history-list">
+          {% for item in recent_checks %}
+            <li>
+              <div class="history-label {{ 'spam' if item.label == 'SPAM' else 'ham' }}">{{ item.label }}</div>
+              <p>{{ item.text }}</p>
+              <small>100% confidence</small>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    <p class="note">This is a machine-learning demonstration. Do not use it as the sole basis for security decisions.</p>
+  </main>
+
+  <script>
+    document.querySelectorAll('.sample-button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const textarea = document.getElementById('email_text');
+        textarea.value = button.dataset.sample;
+        textarea.focus();
+      });
+    });
+  </script>
+</body>
+</html>
